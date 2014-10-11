@@ -1,13 +1,12 @@
 package tue.dnssd.context.tag.gui;
 
-import tue.dnssd.context.tag.naming.TagToPointerNamingScheme;
-import tue.dnssd.context.tag.publish.DNSRecordListener;
 import tue.dnssd.context.tag.naming.NamingScheme;
 import tue.dnssd.context.tag.naming.ServiceSearchOperation;
+import tue.dnssd.context.tag.publish.DNSRecordListener;
 import tue.dnssd.context.tag.publish.ServiceDiscoverer;
-
 import tue.dnssd.jmdns.impl.DNSEntry;
 import tue.dnssd.jmdns.impl.JmDNSImpl;
+
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -106,7 +105,7 @@ public class SeekForm {
     private ActionListener buttonHit = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent actionEvent) {
-            DNSRecordListener listener=(namingScheme instanceof TagToPointerNamingScheme)?somethingFoundT2PListener:somethingFoundListener;
+            DNSRecordListener listener=somethingFoundListener;
             try {
                 listModel.clear();
                 operation=ServiceSearchOperation.values()[comboBox1.getSelectedIndex()];

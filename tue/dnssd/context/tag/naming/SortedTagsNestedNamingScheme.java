@@ -80,13 +80,15 @@ public class SortedTagsNestedNamingScheme extends NamingScheme {
 
     @Override
     public Set<String> getTagsForString(String str, String fullServiceTypeWithDomain) {
-        if(str.endsWith(fullServiceTypeWithDomain))
-            str=str.substring(0,str.lastIndexOf(fullServiceTypeWithDomain)-1);
+        Set<String> ret=new HashSet<String>(20);
+        if(str.endsWith(fullServiceTypeWithDomain) && !str.equals(fullServiceTypeWithDomain)) {
+            str = str.substring(0, str.lastIndexOf(fullServiceTypeWithDomain) - 1);
 
-        String[] tagsStrings=str.split(".");
 
-        Set<String> ret=new HashSet<String>(tagsStrings.length);
-        Collections.addAll(ret, tagsStrings);
+            String[] tagsStrings = str.split(".");
+
+            Collections.addAll(ret, tagsStrings);
+        }
 
         return ret;
     }
@@ -107,6 +109,6 @@ public class SortedTagsNestedNamingScheme extends NamingScheme {
 
     @Override
     public boolean isSatisfying(DNSMessage message, Formula formula) {
-        return false;
+        return new SortedTagsConcatNamingScheme().isSatisfying(message,formula);
     }
 }

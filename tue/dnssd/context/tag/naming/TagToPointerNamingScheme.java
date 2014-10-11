@@ -53,6 +53,11 @@ public class TagToPointerNamingScheme extends NamingScheme {
                     DNSQuestion oneRetEntry= DNSQuestion.newQuestion(t, DNSRecordType.TYPE_PTR, DNSRecordClass.CLASS_ANY, false);
                     ret.add(oneRetEntry);
                 }
+
+                if(ret.size()==0){
+                    DNSQuestion oneRetEntry= DNSQuestion.newQuestion(getJmDNSTypeStringFromIndividualServiceTypeFields(type,protocol,domain), DNSRecordType.TYPE_PTR, DNSRecordClass.CLASS_ANY, false);
+                    ret.add(oneRetEntry);
+                }
                 return ret;
         }
     }
@@ -74,6 +79,7 @@ public class TagToPointerNamingScheme extends NamingScheme {
     public Set<String> getTagsForString(String str, String fullServiceTypeWithDomain) {
         if(str.equals(fullServiceTypeWithDomain))
             return new HashSet<String>();
+
         if(str.endsWith(fullServiceTypeWithDomain))
             str=str.substring(0,str.lastIndexOf(fullServiceTypeWithDomain)-1);
 

@@ -46,7 +46,7 @@ public class PublishForm {
 
             try {
                 ServicePublisher publisher = new ServicePublisher(namingScheme,jmDNS);
-                publisher.publishService(service);
+                publisher.publishServiceLazy(service);
                 publishButton.setEnabled(false);
             } catch (IOException e) {
                 e.printStackTrace();

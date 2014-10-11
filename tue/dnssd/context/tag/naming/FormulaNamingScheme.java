@@ -51,11 +51,15 @@ public class FormulaNamingScheme extends NamingScheme {
                 break;
             case intersection:
                 N=TagsCombiner.concatenateListWithCharacter(tagsForOperation,"*");
+                if(N.length()>0) {
+                    N = N.substring(0, N.length() - 1);
+                    N += ".";
+                }
                 break;
             default:
                 N="";
         }
-        N=N+"."+jmDNSTypeString;
+        N=N+jmDNSTypeString;
         DNSQuestion retEntry=DNSQuestion.newQuestion(N, DNSRecordType.TYPE_PTR, DNSRecordClass.CLASS_ANY,false);
         ret.add(retEntry);
         return ret;
@@ -108,10 +112,12 @@ public class FormulaNamingScheme extends NamingScheme {
 
         for(Conjunction c :formula.conjunctionList){
             name+=TagsCombiner.concatenateListWithCharacter(c.nonNegatedTags,"*");
+            name=name.substring(0,name.length()-1);
             for(String s:c.negatedTags)
                 name+="-"+s;
             name+=".";
         }
+//        name=name.substring(0,name.length()-1);
 
         String jmDNSTypeString=getJmDNSTypeStringFromIndividualServiceTypeFields(type,protocol,domain);
         name+=jmDNSTypeString;
@@ -124,17 +130,23 @@ public class FormulaNamingScheme extends NamingScheme {
     @Override
     public boolean isSatisfying(DNSMessage message, Formula formula) {
         Collection<? extends DNSRecord> answers=message.getAnswers();
-        Set<String> formulaParts=new HashSet<String>();
 
-        List<DNSQuestion> formulaQuestions=this.getRecordsForSearchF(formula, "", "", "");
-        for(DNSQuestion q:formulaQuestions)
-            formulaParts.add(q.getKey());
+        String name="";
+
+        if(formula.conjunctionList.size()>0)
+        for(Conjunction c :formula.conjunctionList){
+            name+=TagsCombiner.concatenateListWithCharacter(c.nonNegatedTags,"*");
+            name=name.substring(0,name.length()-1);
+            for(String s:c.negatedTags)
+                name+="-"+s;
+            name+=".";
+        }
 
 
         for(DNSRecord r:answers){
             if(r.getRecordType()==DNSRecordType.TYPE_PTR) {
                 String justName=(r.getKey().replaceFirst(r.getType(),""));
-                if(formulaParts.contains(justName))
+                if(name.equals(justName))
                     return  true;
             }
         }
@@ -143,20 +155,23 @@ public class FormulaNamingScheme extends NamingScheme {
     }
 
     public boolean isSatisfying(String formulaFromPTR,String fullServiceTypeWithDomain, Collection<String> tags){
-        if(formulaFromPTR.endsWith(fullServiceTypeWithDomain))
-            formulaFromPTR=formulaFromPTR.substring(0,formulaFromPTR.lastIndexOf(fullServiceTypeWithDomain)-1);
+        Formula f;
+        if(formulaFromPTR.endsWith(fullServiceTypeWithDomain)&&!formulaFromPTR.equals(fullServiceTypeWithDomain)) {
+            formulaFromPTR = formulaFromPTR.substring(0, formulaFromPTR.lastIndexOf(fullServiceTypeWithDomain) - 1);
 
-         Formula f=getFormulaFromString(formulaFromPTR);
+            f= getFormulaFromString(formulaFromPTR);
+        }
+        else f=new Formula();
         return f.isSatisfiedBy(tags);
     }
 
     private Formula getFormulaFromString(String str){
-        Formula ret=new Formula();
-        String[] conjunctions=str.split("//.");
+        Formula ret=new Formula(new ArrayList<Conjunction>());
+        String[] conjunctions=str.split("\\.");
 
         for(String s:conjunctions){
             Conjunction c=new Conjunction();
-            String[] nonNeg=s.split("//*");
+            String[] nonNeg=s.split("\\*");
             c.nonNegatedTags.addAll(Arrays.asList(nonNeg).subList(0, nonNeg.length - 1));
             String n=nonNeg[nonNeg.length-1];
             if(n.contains("-")){

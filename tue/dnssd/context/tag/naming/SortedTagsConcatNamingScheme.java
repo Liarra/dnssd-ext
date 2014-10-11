@@ -92,13 +92,14 @@ public class SortedTagsConcatNamingScheme extends NamingScheme {
 
     @Override
     public Set<String> getTagsForString(String str,String fullServiceTypeWithDomain) {
-        if(str.endsWith(fullServiceTypeWithDomain))
+        Set<String> ret=new HashSet<String>(20);
+
+        if(str.endsWith(fullServiceTypeWithDomain)&&!str.equals(fullServiceTypeWithDomain)) {
             str=str.substring(0,str.lastIndexOf(fullServiceTypeWithDomain)-1);
+            String[] tagsStrings=str.split("\\.");
 
-        String[] tagsStrings=str.split("\\.");
-
-        Set<String> ret=new HashSet<String>(tagsStrings.length);
-        Collections.addAll(ret, tagsStrings);
+            Collections.addAll(ret, tagsStrings);
+        }
 
         return ret;
     }
@@ -117,6 +118,14 @@ public class SortedTagsConcatNamingScheme extends NamingScheme {
         HashSet<String> negatedTags=new HashSet<String>();
         List<DNSQuestion> ret=new ArrayList<DNSQuestion>();
 
+        if(formula.conjunctionList.size()==0){
+            DNSQuestion oneRetEntry=DNSQuestion.newQuestion(
+                    getJmDNSTypeStringFromIndividualServiceTypeFields(type,protocol,domain),
+                    DNSRecordType.TYPE_PTR,DNSRecordClass.CLASS_ANY,false);
+
+            ret.add(oneRetEntry);
+        }
+        else
         for(Conjunction c :formula.conjunctionList){
             ret.addAll(getRecordsForSearch(c.nonNegatedTags, ServiceSearchOperation.intersection, type, protocol, domain));
             negatedTags.addAll(c.negatedTags);

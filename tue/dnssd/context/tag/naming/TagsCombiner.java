@@ -9,7 +9,7 @@ import java.util.List;
  *
  * Created by nina on 5/21/14.
  */
-class TagsCombiner {
+public class TagsCombiner {
     /**
      * Glues strings together with given character in-between them. The input of {tag1,tag2,tag3} and character "@" will
      * math to the output "tag1@tag2@tag3@"
@@ -17,11 +17,13 @@ class TagsCombiner {
      * @param character
      * @return
      */
-    static String concatenateListWithCharacter(List<String> items, String character){
+    public static String concatenateListWithCharacter(List<String> items, String character){
         String tagsString = "";
         for (String s : items) {
             tagsString += s + character;
         }
+
+//        tagsString=tagsString.substring(0,tagsString.length()-1);
 
         return tagsString;
     }
@@ -33,7 +35,7 @@ class TagsCombiner {
      * @param tags
      * @param ret
      */
-    static void combination(List<String> tags, List<String> ret) {
+    public static void combination(List<String> tags, List<String> ret) {
         //Make a combination of all
         String tagsString= concatenateListWithCharacter(tags, ".");
 
